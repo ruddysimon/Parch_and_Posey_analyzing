@@ -39,7 +39,6 @@ CREATE TABLE "orders" (
      )
 );
 
-select * from orders
 
 CREATE TABLE "regions" (
     "id" INTEGER   NOT NULL,
