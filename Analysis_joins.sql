@@ -34,3 +34,32 @@ inner join accounts as a
 on a.sales_rep_id = sr.id
 order by 3;
 
+
+-- Provide the name for each region for every order, as well as the account name and the unit price they paid (total_amt_usd/total) for the order. 
+-- Your final table should have 3 columns: region name, account name, and unit price.
+-- A few accounts have 0 for total, so I divided by (total + 0.01) to assure not dividing by zero.
+select r.name as "region_name", a.name as "account_name", o.total_amt_usd/(o.total+0.01) as "unit_price"
+from sales_reps as sr
+inner join regions as r
+on r.id = sr.region_id
+inner join accounts as a
+on a.sales_rep_id = sr.id
+inner join orders as o
+on a.id = o.account_id
+order by 3 asc
+
+
+-- Find the total amount spent on standard_amt_usd and gloss_amt_usd paper for each order in the orders table. 
+-- This should give a dollar amount for each order in the table.
+select (standard_amt_usd + gloss_amt_usd) as "total_standard_gloss"
+from orders;
+
+
+-- Which account (by name) placed the earliest order? Your solution should have the account name and the date of the order.
+select a.name, o.occurred_at
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1,2
+order by 2 asc
+limit 1;
