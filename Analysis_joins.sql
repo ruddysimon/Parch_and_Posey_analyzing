@@ -63,3 +63,120 @@ on a.id = o.account_id
 group by 1,2
 order by 2 asc
 limit 1;
+
+
+-- Find the total sales in usd for each account. You should include two columns - the total sales for each company's orders in usd and the company name.
+select a.name, sum(total_amt_usd) as "total_sales_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+
+-- Via what channel did the most recent (latest) web_event occur, which account was associated with this web_event? 
+-- Your query should return only three values - the date, channel, and account name.
+select a.name, we.occurred_at, we.channel
+from accounts as a
+inner join web_events as we
+on a.id = we.account_id
+order by 2 desc
+limit 1;
+
+
+-- For each account, determine the average amount of each type of paper they purchased across their orders. 
+-- Your result should have four columns - one for the account name and one for the average quantity purchased for each of the paper types for each account.
+select a.name as "account_name",
+	   avg(o.standard_qty) as "average_standard",
+	   avg(o.gloss_qty) as "average_gloss",
+	   avg(o.poster_qty) as "average_poster"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1;
+
+
+	   
+-- For each account, determine the average amount spent per order on each paper type. 
+-- Your result should have four columns - one for the account name and one for the average amount spent on each paper type.
+select a.name, 
+	   avg(o.standard_amt_usd) as "average_standard_usd",
+	   avg(o.gloss_amt_usd) as "average_gloss_usd",
+	   avg(o.poster_amt_usd) as "average_poster_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+
+
+-- Determine the number of times a particular channel was used in the web_events table for each sales rep. 
+-- Your final table should have three columns - the name of the sales rep, the channel, and the number of occurrences. 
+-- Order your table with the highest number of occurrences first.
+select sr.name, we.channel, count(*) as "number_occurrences"
+from accounts as a
+inner join web_events as we
+on a.id = we.account_id
+inner join sales_reps as sr
+on sr.id = a.sales_rep_id
+group by 1,2
+order by 3 desc;
+
+
+-- Determine the number of times a particular channel was used in the web_events table for each region. 
+-- Your final table should have three columns - the region name, the channel, and the number of occurrences. Order your table with the highest number of occurrences first.
+select r.name, we.channel, count(*) as "number_occurrences"
+from sales_reps as sr 
+inner join regions as r
+on r.id = sr.region_id
+inner join accounts as a
+on a.sales_rep_id = sr.id
+inner join web_events as we
+on we.account_id = a.id
+group by 1,2
+order by 3 desc;
+
+
+-- How many of the sales reps have more than 5 accounts that they manage?
+select sr.id, sr.name, count(*) as "count"
+from sales_reps as sr
+inner join accounts as a
+on a.sales_rep_id = sr.id
+group by 1,2 
+having count(*) > 5
+
+
+-- How many accounts have more than 20 orders?
+select a.name, count(*) as "orders"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+having count(*) > 20
+order by count(*) desc;
+
+
+-- Which account has the most orders?
+select a.id, a.name, count(*) as "orders"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1,2
+order by 3 desc
+limit 1;
+
+
+-- How many accounts spent more than 30,000 usd total across all orders?
+select a.name, sum(o.total_amt_usd) as "total_spent_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+having sum(o.total_amt_usd) > 30000 
+
+
+-- How many accounts spent less than 1,000 usd total across all orders?
+select a.name, sum(o.total_amt_usd) as "total_spent_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+having sum(o.total_amt_usd) < 1000
+order by 2

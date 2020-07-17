@@ -26,7 +26,7 @@ CREATE TABLE "orders" (
     "id" INTEGER, 
     "account_id" INTEGER ,
     "occurred_at" TIMESTAMP,
-    "tandard_qty" INTEGER,
+    "standard_qty" INTEGER,
     "gloss_qty" INTEGER   ,
     "poster_qty" INTEGER  ,
     "total" INTEGER   ,
