@@ -219,3 +219,41 @@ group by 1,2
 order by 3 desc
 limit 1;
 
+
+-- Write a query to display for each order, the account ID, total amount of the order, 
+-- and the level of the order - ‘Large’ or ’Small’ - depending on if the order is $3000 or more, or smaller than $3000
+select id, total_amt_usd, 
+	   case when total_amt_usd < 3000 then 'Small' else 'Large' end as "Level_of_order"
+from orders
+
+
+-- Write a query to display the number of orders in each of three categories, based on the total number of items in each order. 
+-- The three categories are: 'At Least 2000', 'Between 1000 and 2000' and 'Less than 1000'.
+select  a.name, o.total, 
+	    case when o.total < 1000 then 'Less than 1000'
+		     when o.total between 1000 and 2000 then 'Between 1000 and 2000'
+			 when o.total > 2000 then 'At Least 2000' end as "Categories"
+from orders as o
+inner join accounts as a
+on a.id = o.account_id
+group by 1,2
+
+
+-- We would like to understand 3 different branches of customers based on the amount associated with their purchases. 
+-- The top branch includes anyone with a Lifetime Value (total sales of all orders) greater than 200,000 usd. 
+-- The second branch is between 200,000 and 100,000 usd. 
+-- The lowest branch is anyone under 100,000 usd. Provide a table that includes the level associated with each account. 
+-- You should provide the account name, the total sales of all orders for the customer, and the level. 
+-- Order with the top spending customers listed first.
+select sr.name as "sales_rep_name", 
+	   count(*) as "total_number_orders", 
+	   sum(o.total_amt_usd) as "total_sales",
+	   case when sum(o.total_amt_usd) > 750000 or count(*) > 200 then 'Top'
+	        when sum(o.total_amt_usd) > 500000 or count(*) > 150 then 'Middle' else 'Low' end as "Performing_sale"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+inner join sales_reps as sr
+on sr.id = a.sales_rep_id
+group by 1
+order by 3 desc
