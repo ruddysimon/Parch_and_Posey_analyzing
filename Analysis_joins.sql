@@ -180,3 +180,42 @@ on a.id = o.account_id
 group by 1
 having sum(o.total_amt_usd) < 1000
 order by 2
+
+
+-- Find the sales in terms of total dollars for all orders in each year, ordered from greatest to least. 
+-- Do you notice any trends in the yearly sales totals?
+select date_part('year', occurred_at) as  "year_date",
+	   sum(total_amt_usd)
+from orders
+group by 1
+order by 2;
+
+
+-- Which month did Parch & Posey have the greatest sales in terms of total dollars? Are all months evenly represented by the dataset?
+select date_part('month', occurred_at) as "month_date",
+	   sum(total_amt_usd) 
+from orders
+group by 1
+order by 2;
+
+
+-- Which year did Parch & Posey have the greatest sales in terms of total number of orders? Are all years evenly represented by the dataset?
+select date_part('year', occurred_at) as "year_date",
+	   count(*) "number_of_orders"
+from orders
+group by 1
+order by 2;
+
+
+-- In which month of which year did Walmart spend the most on gloss paper in terms of dollars?
+select date_trunc('month', o.occurred_at) as "date",
+	   a.name,
+	   sum(o.gloss_amt_usd) as "total_gloss_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+where a.name like 'Walmart'
+group by 1,2
+order by 3 desc
+limit 1;
+
