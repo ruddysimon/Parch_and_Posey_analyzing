@@ -257,3 +257,27 @@ inner join sales_reps as sr
 on sr.id = a.sales_rep_id
 group by 1
 order by 3 desc
+
+
+-- What is the top channel used by each account to market products? And how often was the channel used?
+select s3.id, s3.name, s3.channel, s3.count
+from (select a.id, a.name, we.channel, count(*) as "count"
+	from accounts as a
+	inner join web_events as we
+	on a.id = we.account_id
+	group by 1,2,3
+	order by 2 desc) as s3
+	
+	join
+	
+(select s1.id, s1.name, max(s1.count) as "max_count"
+from
+	(select a.id, a.name, we.channel, count(*) as "count"
+	from accounts as a
+	inner join web_events as we
+	on a.id = we.account_id
+	group by 1,2,3
+	order by 2 desc) as s1
+group by 1,2) as s2
+on s2.id = s3.id and s2.max_count = s3.count
+order by s3.name
