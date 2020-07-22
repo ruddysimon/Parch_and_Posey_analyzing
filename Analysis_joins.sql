@@ -281,3 +281,34 @@ from
 group by 1,2) as s2
 on s2.id = s3.id and s2.max_count = s3.count
 order by s3.name
+
+
+-- Provide the name of the sales_rep in each region with the largest amount of total_amt_usd sales.
+select s3.rep_name, s3.region_name, s3.sum_total_usd
+from    (select sr.name as "rep_name", r.name as "region_name", sum(o.total_amt_usd) as "sum_total_usd"
+		from accounts as a
+		inner join sales_reps as sr
+		on a.sales_rep_id = sr.id
+		inner join orders as o
+		on a.id = o.account_id
+		inner join regions as r
+		on r.id = sr.region_id
+		group by 1,2
+		order by 3 desc) as s3
+		
+		join
+		
+(select region_name, max(sum_total_usd) as "max_amt_usd"
+from   (select sr.name as "rep_name", r.name as "region_name", sum(o.total_amt_usd) as "sum_total_usd"
+		from accounts as a
+		inner join sales_reps as sr
+		on a.sales_rep_id = sr.id
+		inner join orders as o
+		on a.id = o.account_id
+		inner join regions as r
+		on r.id = sr.region_id
+		group by 1,2
+		order by 3 desc) as s1
+group by 1) as s2
+on s2.region_name = s3.region_name and s2.max_amt_usd = s3.sum_total_usd
+order by s3.region_name
