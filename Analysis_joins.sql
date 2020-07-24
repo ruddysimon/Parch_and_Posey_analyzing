@@ -312,3 +312,60 @@ from   (select sr.name as "rep_name", r.name as "region_name", sum(o.total_amt_u
 group by 1) as s2
 on s2.region_name = s3.region_name and s2.max_amt_usd = s3.sum_total_usd
 order by s3.region_name
+
+
+-- For the region with the largest sales total_amt_usd, how many total orders were placed?
+select r.name as "region_name", count(*) as "count"
+from accounts as a
+inner join sales_reps as sr
+on a.sales_rep_id = sr.id
+inner join orders as o
+on a.id = o.account_id
+inner join regions as r
+on r.id = sr.region_id
+group by 1
+having sum(o.total_amt_usd) =
+							(select max(sum_amt_usd)
+							from (select r.name as "region_name", sum(o.total_amt_usd) as "sum_amt_usd"
+							from accounts as a
+							inner join sales_reps as sr
+							on a.sales_rep_id = sr.id
+							inner join orders as o
+							on a.id = o.account_id
+							inner join regions as r
+							on r.id = sr.region_id
+							group by 1) as s1)
+
+
+
+-- How many accounts had more total purchases than the account name which has bought the most standard_qty paper throughout their lifetime as a customer?
+select count(*)
+	from(select a.name
+	from accounts as a
+	inner join orders as o
+	on a.id = o.account_id
+	group by 1
+	having sum (o.total) > (select sum_total 
+							from (select a.name as "acount_name", sum(o.total) as "sum_total", sum(o.standard_qty) as "standard_qty"
+							from accounts as a
+							inner join orders as o
+							on a.id = o.account_id
+							group by 1
+							order by 3 desc
+							limit 1) as s1)) as s2
+
+
+
+-- For the customer that spent the most (in total over their lifetime as a customer) total_amt_usd, how many web_events did they have for each channel?
+select s1.company_name ,we.channel, count(*)
+from web_events as we
+inner join (select a.id ,a.name as "company_name", sum(o.total_amt_usd) as "sum_amt_total"
+	from accounts as a
+	inner join orders as o
+	on a.id = o.account_id
+	group by 1 
+	order by 3 desc
+	limit 1) as s1
+on s1.id = we.account_id
+group by 1,2
+order by 3 desc
