@@ -369,3 +369,14 @@ inner join (select a.id ,a.name as "company_name", sum(o.total_amt_usd) as "sum_
 on s1.id = we.account_id
 group by 1,2
 order by 3 desc
+
+
+-- What is the lifetime average amount spent in terms of total_amt_usd for the top 10 total spending accounts?
+select avg(total_amt_usd) as "total_avg_amt_usd"
+from (select a.name as "company_name", sum(o.total_amt_usd) as "total_amt_usd"
+from accounts as a
+inner join orders as o
+on a.id = o.account_id
+group by 1
+order by 2 desc
+limit 10) as s1
