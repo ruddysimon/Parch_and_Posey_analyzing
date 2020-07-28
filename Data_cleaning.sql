@@ -37,4 +37,29 @@ on r.id = sr.region_id
 
 -- From the accounts table, display the name of the client, the coordinate as concatenated (latitude, longitude), 
 -- email id of the primary point of contact as <first letter of the primary_poc><last letter of the primary_poc>@<extracted name and domain from the website>
+select name, concat(lat,',',long) as "coordinate", concat(left(primary_poc,1), right(primary_poc,1),'@', right(website,3)) as "email"
+from accounts
 
+
+-- From the web_events table, display the concatenated value of account_id, '_' , channel, '_', count of web events of the particular channel.
+with t1 as(
+select channel, account_id,  count(*) as "web_events_cnt"
+from web_events
+group by 1,2
+order by 3 desc)
+select concat(t1.account_id, '_', t1.channel, '_', t1.web_events_cnt) as "concatenated_value"
+from t1;
+
+
+-- Use the accounts table to create first and last name columns that hold the first and last names for the primary_poc.
+select left(primary_poc, strpos(primary_poc,' ')-1) as "first_name",
+	   right(primary_poc, length(primary_poc) - strpos(primary_poc,' ')) as "last_name",
+	   primary_poc
+from accounts
+
+
+
+-- Each company in the accounts table wants to create an email address for each primary_poc. 
+-- The email address should be the first name of the primary_poc . last name primary_poc @ company name .com.
+select primary_poc, concat(left(primary_poc, strpos(primary_poc,' ')-1), '.', right(primary_poc, length(primary_poc) - strpos(primary_poc,' ')), '@', name, '.com') as "email_address"
+from accounts
