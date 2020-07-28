@@ -63,3 +63,16 @@ from accounts
 -- The email address should be the first name of the primary_poc . last name primary_poc @ company name .com.
 select primary_poc, concat(left(primary_poc, strpos(primary_poc,' ')-1), '.', right(primary_poc, length(primary_poc) - strpos(primary_poc,' ')), '@', name, '.com') as "email_address"
 from accounts
+
+-- solution with subquery
+WITH t1 AS (
+ SELECT LEFT(primary_poc,     STRPOS(primary_poc, ' ') -1 ) first_name,  RIGHT(primary_poc, LENGTH(primary_poc) - STRPOS(primary_poc, ' ')) last_name, name
+ FROM accounts)
+SELECT first_name, last_name, CONCAT(first_name, '.', last_name, '@', name, '.com')
+FROM t1;
+
+
+
+
+
+
