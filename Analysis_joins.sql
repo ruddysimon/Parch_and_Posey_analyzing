@@ -380,3 +380,66 @@ on a.id = o.account_id
 group by 1
 order by 2 desc
 limit 10) as s1
+
+
+-- What is the lifetime average amount spent in terms of total_amt_usd, including only the companies that spent more per order, on average, than the average of all orders.
+select avg(total_avg)
+from (select  o.account_id, avg(o.total_amt_usd) as "total_avg"
+	  from orders as o
+	  group by 1
+	  having avg(o.total_amt_usd) > (select avg(total_amt_usd)
+									   from orders)) as table1
+
+
+-- Provide the name of the sales_rep in each region with the largest amount of total_amt_usd sales.
+with t1 as (
+	select s.name as "sales_reps_name", r.name as "region_name", sum(o.total_amt_usd) as "sum_amt_usd"
+	from accounts as a
+	inner join sales_reps as s
+	on a.sales_rep_id = s.id
+	inner join regions as r
+	on r.id = s.region_id
+	inner join orders as o
+	on a.id = o.account_id
+	group by 1,2
+	order by 3 desc),
+t2 as (
+	select region_name, max(sum_amt_usd) as "max_amt"
+	from t1
+	group by 1)
+select t1.sales_reps_name, t1.region_name, t1.sum_amt_usd
+from t1
+inner join t2
+on t1.sum_amt_usd = t2.max_amt and t1.region_name = t2.region_name
+
+
+-- For the region with the largest sales total_amt_usd, how many total orders were placed?
+with t1 as(
+	select r.name as "region_name", sum(o.total_amt_usd) as "total_amt_usd"
+	from accounts as a
+	inner join sales_reps as sr
+	on a.sales_rep_id = sr.id
+	inner join orders as o
+	on a.id = o.account_id
+	inner join regions as r
+	on sr.region_id = r.id
+	group by 1
+	order by 2 desc),
+t2 as(
+	select max(total_amt_usd) as "max_amt_usd"
+	from t1)
+select r.name, count(o.total) as "total_orders"
+from sales_reps s
+inner join accounts a
+on a.sales_rep_id = s.id
+inner join orders o
+on o.account_id = a.id
+inner join regions r
+on r.id = s.region_id
+group by 1
+having sum(o.total_amt_usd) = (select * from t2)
+
+
+
+
+
